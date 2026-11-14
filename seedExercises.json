@@ -1,0 +1,182 @@
+[
+  {
+    "id": "rgym_d1_01",
+    "name": "Jalón con polea alta al pecho con agarre ancho",
+    "category": "MACHINE",
+    "muscle_group": "BACK",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "Sentado en el banco frente a la máquina, sujete la barra con las manos bien separadas, con los brazos estirados, inclinamos el tronco ligeramente hacia atrás. Centramos la tensión en los omóplatos e intentamos juntarlos tirando de los hombros hacia el pecho, volvemos lentamente a la posición inicial.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d1_02",
+    "name": "Press pectoral en máquina agarre vertical",
+    "category": "MACHINE",
+    "muscle_group": "CHEST",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Siéntese en la máquina con manillas al nivel del pecho y agarre neutro. Contraiga suelo pélvico y core con pecho levantado. EJECUCIÓN: Empuje los mangos apretando pectorales y extienda codos al exhalar. Vuelva suave al inhalar sin que las placas toquen. CONSEJOS: Calidad sobre cantidad.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d1_03",
+    "name": "Curl de bíceps alterno de pie con mancuernas y giro",
+    "category": "FREE_WEIGHT",
+    "muscle_group": "ARMS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: De pie con mancuerna en cada mano a los lados de la cadera, agarre neutro, core y suelo pélvico contraídos. EJECUCIÓN: Doble el codo totalmente supinando la mano al exhalar. Baje suave inhalando y alterne de brazo. CONSEJOS: Mueva solo la articulación del codo.",
+    "video_url": "[https://www.youtube.com/watch?v=MHF9VflB7MI](https://www.youtube.com/watch?v=MHF9VflB7MI)"
+  },
+  {
+    "id": "rgym_d1_04",
+    "name": "Extensión de tríceps a una mano con mancuerna de pie",
+    "category": "FREE_WEIGHT",
+    "muscle_group": "ARMS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: De pie con mancuerna en una mano con agarre neutro, brazo extendido encima de la cabeza, core activado. EJECUCIÓN: Baje lentamente la mancuerna detrás de la cabeza doblando el codo al inhalar. Extienda al exhalar y luego cambie de brazo. CONSEJOS: Mueva únicamente la articulación del codo.",
+    "video_url": "[https://www.youtube.com/watch?v=Tp9PE8j_ISE](https://www.youtube.com/watch?v=Tp9PE8j_ISE)"
+  },
+  {
+    "id": "rgym_d1_05",
+    "name": "Curl femoral sentado en máquina",
+    "category": "MACHINE",
+    "muscle_group": "LEGS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Almohadilla debajo de los tobillos con rodillas casi a 180º y cojín bloqueando los muslos arriba de las rodillas. EJECUCIÓN: Doble las rodillas tanto como pueda al exhalar, aguante 1 seg y vuelva suave sin chocar placas. CONSEJOS: Mantenga el mismo rango en todas las repeticiones.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d1_06",
+    "name": "Extensión de piernas en máquina",
+    "category": "MACHINE",
+    "muscle_group": "LEGS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Almohadilla delante de los tobillos con rodillas a 90º y espalda recta. EJECUCIÓN: Extienda las rodillas con los cuádriceps al exhalar, aguante 1 seg y vuelva suave sin chocar placas. CONSEJOS: Evite bloquear de forma brusca al final de la extensión para no forzar las rodillas.",
+    "video_url": "[https://www.youtube.com/watch?v=WAMwZLxhGd4](https://www.youtube.com/watch?v=WAMwZLxhGd4)"
+  },
+  {
+    "id": "rgym_d2_01",
+    "name": "Remo con agarre cerrado sentado en máquina",
+    "category": "MACHINE",
+    "muscle_group": "BACK",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Manillas al nivel del pecho, brazos extendidos, pecho alto y core contraído. EJECUCIÓN: Tire de las manijas hacia el torso retrayendo los omóplatos al exhalar. Vuelva suave inhalando sin chocar las placas.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d2_02",
+    "name": "Aperturas en máquina contractor",
+    "category": "MACHINE",
+    "muscle_group": "CHEST",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Codos alineados con hombros/pecho inferior y antebrazos contra almohadillas. EJECUCIÓN: Junte las manillas apretando pectorales al exhalar, sostenga 1 seg y vuelva suave sin que las placas se toquen.",
+    "video_url": "[https://www.youtube.com/watch?v=axBQGEypghk](https://www.youtube.com/watch?v=axBQGEypghk)"
+  },
+  {
+    "id": "rgym_d2_03",
+    "name": "Curl de bíceps con giro en máquina",
+    "category": "MACHINE",
+    "muscle_group": "ARMS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: En máquina predicador, agarre neutro, pecho y brazos apoyados en almohadillas. EJECUCIÓN: Doble los codos completamente supinando las manos al exhalar y regrese suave sin chocar placas. CONSEJOS: Mueva solo la articulación del codo.",
+    "video_url": "[https://www.youtube.com/watch?v=_piBEO2cLJw](https://www.youtube.com/watch?v=_piBEO2cLJw)"
+  },
+  {
+    "id": "rgym_d2_04",
+    "name": "Extensión de tríceps sentado en máquina",
+    "category": "MACHINE",
+    "muscle_group": "ARMS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Manijas debajo de los hombros, brazos paralelos al suelo y espalda contra el respaldo. EJECUCIÓN: Empuje hacia abajo extendiendo completamente los codos cerca del cuerpo al exhalar. Vuelva suave sin chocar placas.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d2_05",
+    "name": "Adducción de cadera en máquina sentado",
+    "category": "MACHINE",
+    "muscle_group": "LEGS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Seleccione la amplitud inicial, espalda apoyada y core activado. EJECUCIÓN: Presione contra las almohadillas hacia adentro para juntar las piernas al exhalar. Vuelva suave inhalando sin chocar placas.",
+    "video_url": null
+  },
+  {
+    "id": "rgym_d2_06",
+    "name": "Abducción de cadera en máquina sentado",
+    "category": "MACHINE",
+    "muscle_group": "LEGS",
+    "measurement_type": "WEIGHT_REPS",
+    "notes": "POSICIÓN INICIAL: Pies en plataformas, espalda apoyada y columna recta. EJECUCIÓN: Presione contra las almohadillas hacia afuera para separar las piernas lo máximo posible al exhalar. Vuelva suave inhalando sin chocar placas.",
+    "video_url": "[https://www.youtube.com/watch?v=9vgr0C9wfFE](https://www.youtube.com/watch?v=9vgr0C9wfFE)"
+  },
+  {
+    "id": "rgym_mob_01",
+    "name": "Equilibrio sobre una pierna",
+    "category": "MOBILITY",
+    "muscle_group": "LEGS",
+    "measurement_type": "TIME_SECONDS",
+    "notes": "De pie con pies a la anchura de los hombros. Levante ligeramente un pie manteniendo la columna recta y el equilibrio durante el tiempo requerido (20 seg). Repita con la otra pierna. Respire fluidamente y reparta el peso en toda la planta del pie.",
+    "video_url": "[https://www.youtube.com/watch?v=HIjmx9X3WNo](https://www.youtube.com/watch?v=HIjmx9X3WNo)"
+  },
+  {
+    "id": "rgym_mob_02",
+    "name": "Equilibrio a una pierna sobre toalla",
+    "category": "MOBILITY",
+    "muscle_group": "LEGS",
+    "measurement_type": "TIME_SECONDS",
+    "notes": "Doble una toalla debajo del pie de apoyo con la rodilla ligeramente flexionada y alineada con la punta del pie. Levante la otra pierna delante de usted y mantenga el equilibrio durante 20 seg. Repita con la otra pierna.",
+    "video_url": "[https://www.youtube.com/watch?v=Yc7PPKoiqvk](https://www.youtube.com/watch?v=Yc7PPKoiqvk)"
+  },
+  {
+    "id": "rgym_mob_03",
+    "name": "Andar sobre línea recta - Romberg",
+    "category": "MOBILITY",
+    "muscle_group": "FULL_BODY",
+    "measurement_type": "REPS_ONLY",
+    "notes": "Caminar en línea recta hacia adelante y hacia atrás (sin dar la vuelta) con los ojos abiertos y cerrados. Objetivo habitual: 2 series de 20 pasos.",
+    "video_url": "[https://www.youtube.com/watch?v=zU5dqA3RqOM](https://www.youtube.com/watch?v=zU5dqA3RqOM)"
+  },
+
+  {"id": "fw_01", "name": "Press de banca plano con barra", "category": "FREE_WEIGHT", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Retracción escapular, pies firmes en el suelo", "video_url": null},
+  {"id": "fw_02", "name": "Press inclinado con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Banco a 30 grados para enfatizar haz clavicular", "video_url": null},
+  {"id": "fw_03", "name": "Fondos en paralelas (Dips)", "category": "FREE_WEIGHT", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Ligera inclinación del torso hacia adelante", "video_url": null},
+  {"id": "fw_04", "name": "Aperturas con mancuernas en banco plano", "category": "FREE_WEIGHT", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Semiflexión de codos constante", "video_url": null},
+  {"id": "fw_05", "name": "Dominadas pronas (Pull-ups)", "category": "FREE_WEIGHT", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Rango completo desde colgado pasivo hasta pasar la barbilla", "video_url": null},
+  {"id": "fw_06", "name": "Remo con barra", "category": "FREE_WEIGHT", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Espalda neutra, traccionar hacia la cadera/abdomen", "video_url": null},
+  {"id": "fw_07", "name": "Remo unilateral con mancuerna (Serrucho)", "category": "FREE_WEIGHT", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Estirar dorsal abajo y llevar codo hacia la cadera", "video_url": null},
+  {"id": "fw_08", "name": "Peso muerto convencional", "category": "FREE_WEIGHT", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Barra pegada a las tibias, activar dorsal antes del despegue", "video_url": null},
+  {"id": "fw_09", "name": "Sentadilla trasera con barra (Back Squat)", "category": "FREE_WEIGHT", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Romper el paralelo manteniendo presión abdominal (bracing)", "video_url": null},
+  {"id": "fw_10", "name": "Peso muerto rumano con barra (RDL)", "category": "FREE_WEIGHT", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Bisagra de cadera pura, rodillas semirrígidas", "video_url": null},
+  {"id": "fw_11", "name": "Sentadilla búlgara con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Inclinación ligera hacia adelante para mayor énfasis en glúteo", "video_url": null},
+  {"id": "fw_12", "name": "Hip Thrust con barra libre", "category": "FREE_WEIGHT", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Pausa de 1 segundo arriba en retroversión pélvica", "video_url": null},
+  {"id": "fw_13", "name": "Zancadas caminando con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Paso controlado, rodilla trasera roza el suelo", "video_url": null},
+  {"id": "fw_14", "name": "Press militar de pie con barra (OHP)", "category": "FREE_WEIGHT", "muscle_group": "SHOULDERS", "measurement_type": "WEIGHT_REPS", "notes": "Glúteos y abdomen contraídos, no hiperextender lumbar", "video_url": null},
+  {"id": "fw_15", "name": "Press de hombros sentado con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "SHOULDERS", "measurement_type": "WEIGHT_REPS", "notes": "Codos en el plano escapular (30-45 grados)", "video_url": null},
+  {"id": "fw_16", "name": "Elevaciones laterales con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "SHOULDERS", "measurement_type": "WEIGHT_REPS", "notes": "Liderar el movimiento con los codos, sin impulso lumbar", "video_url": null},
+  {"id": "fw_17", "name": "Curl de bíceps con barra Z", "category": "FREE_WEIGHT", "muscle_group": "ARMS", "measurement_type": "WEIGHT_REPS", "notes": "Codos pegados al costado sin adelantar el hombro", "video_url": null},
+  {"id": "fw_18", "name": "Curl de bíceps en banco inclinado con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "ARMS", "measurement_type": "WEIGHT_REPS", "notes": "Máximo estiramiento de la cabeza larga del bíceps", "video_url": null},
+  {"id": "fw_19", "name": "Curl martillo con mancuernas", "category": "FREE_WEIGHT", "muscle_group": "ARMS", "measurement_type": "WEIGHT_REPS", "notes": "Agarre neutro para braquial y braquiorradial", "video_url": null},
+  {"id": "fw_20", "name": "Press francés con barra Z", "category": "FREE_WEIGHT", "muscle_group": "ARMS", "measurement_type": "WEIGHT_REPS", "notes": "Bajar la barra hacia la frente o detrás de la cabeza", "video_url": null},
+  {"id": "fw_21", "name": "Rueda abdominal (Ab Wheel)", "category": "FREE_WEIGHT", "muscle_group": "CORE", "measurement_type": "REPS_ONLY", "notes": "Mantener retroversión pélvica durante toda la extensión", "video_url": null},
+
+  {"id": "mc_01", "name": "Cruce de poleas altas", "category": "MACHINE", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Unir las manos frente al abdomen inferior", "video_url": null},
+  {"id": "mc_02", "name": "Press inclinado en Multipower (Smith)", "category": "MACHINE", "muscle_group": "CHEST", "measurement_type": "WEIGHT_REPS", "notes": "Bajar la barra hacia la parte superior del pecho", "video_url": null},
+  {"id": "mc_03", "name": "Remo en máquina con apoyo en pecho", "category": "MACHINE", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Aísla la espalda alta y dorsal eliminando fatiga lumbar", "video_url": null},
+  {"id": "mc_04", "name": "Pull-over en polea alta con cuerda", "category": "MACHINE", "muscle_group": "BACK", "measurement_type": "WEIGHT_REPS", "notes": "Brazos casi rectos, llevar manos hacia los muslos", "video_url": null},
+  {"id": "mc_05", "name": "Prensa de piernas inclinada 45° (Leg Press)", "category": "MACHINE", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "No despegar el sacro del respaldo al bajar", "video_url": null},
+  {"id": "mc_06", "name": "Sentadilla Hack (Hack Squat)", "category": "MACHINE", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Pies en la parte baja de la plataforma para enfatizar cuádriceps", "video_url": null},
+  {"id": "mc_07", "name": "Curl femoral tumbado en máquina", "category": "MACHINE", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Mantener la pelvis pegada al banco al flexionar", "video_url": null},
+  {"id": "mc_08", "name": "Elevación de talones en máquina (Gemelos)", "category": "MACHINE", "muscle_group": "LEGS", "measurement_type": "WEIGHT_REPS", "notes": "Pausa de 2 segundos abajo en máximo estiramiento", "video_url": null},
+  {"id": "mc_09", "name": "Elevaciones laterales en polea baja", "category": "MACHINE", "muscle_group": "SHOULDERS", "measurement_type": "WEIGHT_REPS", "notes": "Polea a la altura de la muñeca para tensión constante", "video_url": null},
+  {"id": "mc_10", "name": "Face Pull en polea alta con cuerda", "category": "MACHINE", "muscle_group": "SHOULDERS", "measurement_type": "WEIGHT_REPS", "notes": "Tirar hacia la frente separando la cuerda con rotación externa", "video_url": null},
+  {"id": "mc_11", "name": "Extensión de tríceps en polea alta con cuerda", "category": "MACHINE", "muscle_group": "ARMS", "measurement_type": "WEIGHT_REPS", "notes": "Abrir la cuerda al final de la extensión sin mover los codos", "video_url": null},
+  {"id": "mc_12", "name": "Crunch abdominal en polea alta", "category": "MACHINE", "muscle_group": "CORE", "measurement_type": "WEIGHT_REPS", "notes": "Flexionar la columna torácica hacia las rodillas", "video_url": null},
+
+  {"id": "mb_01", "name": "Dislocaciones de hombro con pica o banda", "category": "MOBILITY", "muscle_group": "SHOULDERS", "measurement_type": "REPS_ONLY", "notes": "Codos bloqueados, pasar de forma fluida de delante hacia atrás", "video_url": null},
+  {"id": "mb_02", "name": "Rotación externa de manguito rotador con banda", "category": "MOBILITY", "muscle_group": "SHOULDERS", "measurement_type": "REPS_ONLY", "notes": "Codo pegado al costado a 90 grados", "video_url": null},
+  {"id": "mb_03", "name": "Movilidad torácica Gato-Camello (Cat-Cow)", "category": "MOBILITY", "muscle_group": "BACK", "measurement_type": "REPS_ONLY", "notes": "Sincronizar inhalación y exhalación con cada ciclo", "video_url": null},
+  {"id": "mb_04", "name": "Rotaciones torácicas en cuadrupedia (Open Books)", "category": "MOBILITY", "muscle_group": "BACK", "measurement_type": "REPS_ONLY", "notes": "Seguir la mano con la mirada manteniendo la cadera fija", "video_url": null},
+  {"id": "mb_05", "name": "Colgado pasivo en barra (Dead Hang)", "category": "MOBILITY", "muscle_group": "SHOULDERS", "measurement_type": "TIME_SECONDS", "notes": "Relajar trapecios y descomprimir columna y hombros", "video_url": null},
+  {"id": "mb_06", "name": "Transiciones de cadera 90/90", "category": "MOBILITY", "muscle_group": "LEGS", "measurement_type": "REPS_ONLY", "notes": "Rotación interna y externa de cadera sentado con torso erguido", "video_url": null},
+  {"id": "mb_07", "name": "El mejor estiramiento del mundo (World's Greatest Stretch)", "category": "MOBILITY", "muscle_group": "FULL_BODY", "measurement_type": "REPS_ONLY", "notes": "Zancada profunda + codo al tobillo + rotación torácica", "video_url": null},
+  {"id": "mb_08", "name": "Dorsiflexión de tobillo contra pared (Knee-to-Wall)", "category": "MOBILITY", "muscle_group": "LEGS", "measurement_type": "REPS_ONLY", "notes": "Adelantar la rodilla hasta tocar la pared sin levantar el talón", "video_url": null},
+  {"id": "mb_09", "name": "Estiramiento de flexores de cadera (Couch Stretch)", "category": "MOBILITY", "muscle_group": "LEGS", "measurement_type": "TIME_SECONDS", "notes": "Glúteo apretado en retroversión pélvica", "video_url": null}
+]
