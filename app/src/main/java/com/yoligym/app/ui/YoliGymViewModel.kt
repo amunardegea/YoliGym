@@ -530,4 +530,30 @@ class YoliGymViewModel(application: Application) : AndroidViewModel(application)
     fun getBackupJson(): String {
         return db.exportBackupJson()
     }
+
+    fun importBackupJson(jsonText: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = db.importBackupJson(jsonText)
+            result.onSuccess { summary ->
+                refreshAllData()
+                showStatus(
+                    "Backup importado: ${summary.exercisesCount} ejercicios, ${summary.routinesCount} rutinas y ${summary.sessionsCount} sesiones (${summary.setsCount} series)"
+                )
+            }.onFailure { err ->
+                showStatus("Error al importar backup: ${err.message ?: "JSON inválido"}")
+            }
+        }
+    }
+
+    fun importSeedExercisesJson(jsonText: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = db.importSeedExercisesJson(jsonText)
+            result.onSuccess { count ->
+                refreshAllData()
+                showStatus("Importados/actualizados $count ejercicios desde seedExercises.json")
+            }.onFailure { err ->
+                showStatus("Error al importar seedExercises.json: ${err.message ?: "JSON inválido"}")
+            }
+        }
+    }
 }

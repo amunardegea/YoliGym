@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -21,8 +23,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -34,6 +40,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,6 +65,64 @@ fun AjustesScreen(
     val context = LocalContext.current
     var showClearHistoryConfirm by remember { mutableStateOf(false) }
     var showRestoreSeedConfirm by remember { mutableStateOf(false) }
+    var showImportBackupDialog by remember { mutableStateOf(false) }
+    var showImportSeedDialog by remember { mutableStateOf(false) }
+
+    val saveBackupFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val json = viewModel.getBackupJson()
+                context.contentResolver.openOutputStream(uri)?.use { out ->
+                    out.write(json.toByteArray(Charsets.UTF_8))
+                }
+                viewModel.showStatus("Archivo de backup guardado correctamente")
+            } catch (e: Exception) {
+                viewModel.showStatus("No se pudo guardar el archivo: ${e.message}")
+            }
+        }
+    }
+
+    val openBackupFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val text = context.contentResolver.openInputStream(uri)
+                    ?.bufferedReader(Charsets.UTF_8)
+                    ?.use { it.readText() }
+                if (!text.isNullOrBlank()) {
+                    viewModel.importBackupJson(text)
+                    showImportBackupDialog = false
+                } else {
+                    viewModel.showStatus("El archivo seleccionado está vacío")
+                }
+            } catch (e: Exception) {
+                viewModel.showStatus("Error al leer el archivo: ${e.message}")
+            }
+        }
+    }
+
+    val openSeedFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val text = context.contentResolver.openInputStream(uri)
+                    ?.bufferedReader(Charsets.UTF_8)
+                    ?.use { it.readText() }
+                if (!text.isNullOrBlank()) {
+                    viewModel.importSeedExercisesJson(text)
+                    showImportSeedDialog = false
+                } else {
+                    viewModel.showStatus("El archivo seleccionado está vacío")
+                }
+            } catch (e: Exception) {
+                viewModel.showStatus("Error al leer el archivo: ${e.message}")
+            }
+        }
+    }
 
     val prefs = uiState.preferences
     val stats = uiState.globalStats
@@ -288,6 +353,50 @@ fun AjustesScreen(
                     }
 
                     OutlinedButton(
+                        onClick = { saveBackupFileLauncher.launch("yoligym_backup.json") },
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        Icon(Icons.Default.SaveAlt, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Guardar Backup JSON en Archivo", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = { showImportBackupDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        Icon(Icons.Default.FileUpload, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Importar Backup JSON", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = { showImportSeedDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        Icon(Icons.Default.FileOpen, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Importar Nuevo seedExercises.json", fontWeight = FontWeight.Bold)
+                    }
+
+                    OutlinedButton(
                         onClick = { showRestoreSeedConfirm = true },
                         shape = RoundedCornerShape(14.dp),
                         modifier = Modifier
@@ -296,7 +405,7 @@ fun AjustesScreen(
                     ) {
                         Icon(Icons.Default.Restore, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Restaurar Ejercicios y Rutinas Base (seedExercises.json)", fontWeight = FontWeight.SemiBold)
+                        Text("Restaurar Ejercicios y Rutinas de Fábrica", fontWeight = FontWeight.SemiBold)
                     }
 
                     OutlinedButton(
@@ -318,12 +427,46 @@ fun AjustesScreen(
         }
     }
 
+    if (showImportBackupDialog) {
+        ImportJsonDialog(
+            title = "Importar Backup JSON",
+            description = "Selecciona un archivo .json de copia de seguridad o pega el contenido JSON desde el portapapeles para restaurar tus ejercicios, rutinas e historial.",
+            fileButtonLabel = "Seleccionar archivo Backup (.json)",
+            confirmButtonLabel = "Importar Backup",
+            onPickFile = {
+                openBackupFileLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+            },
+            onConfirmText = { jsonText ->
+                viewModel.importBackupJson(jsonText)
+                showImportBackupDialog = false
+            },
+            onDismiss = { showImportBackupDialog = false }
+        )
+    }
+
+    if (showImportSeedDialog) {
+        ImportJsonDialog(
+            title = "Importar seedExercises.json",
+            description = "Selecciona un archivo seedExercises.json desde tu teléfono o pega el JSON de ejercicios para añadir o actualizar el catálogo.",
+            fileButtonLabel = "Seleccionar archivo seedExercises.json",
+            confirmButtonLabel = "Importar Ejercicios",
+            onPickFile = {
+                openSeedFileLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+            },
+            onConfirmText = { jsonText ->
+                viewModel.importSeedExercisesJson(jsonText)
+                showImportSeedDialog = false
+            },
+            onDismiss = { showImportSeedDialog = false }
+        )
+    }
+
     if (showRestoreSeedConfirm) {
         AlertDialog(
             onDismissRequest = { showRestoreSeedConfirm = false },
             title = { Text("Restaurar datos semilla", fontWeight = FontWeight.Bold) },
             text = {
-                Text("Se volverán a sincronizar los 48 ejercicios de seedExercises.json y las rutinas base sin borrar tus sesiones de entrenamiento.")
+                Text("Se volverán a sincronizar los ejercicios de fábrica de seedExercises.json y las rutinas base sin borrar tus sesiones de entrenamiento.")
             },
             confirmButton = {
                 Button(
@@ -368,6 +511,83 @@ fun AjustesScreen(
             }
         )
     }
+}
+
+@Composable
+private fun ImportJsonDialog(
+    title: String,
+    description: String,
+    fileButtonLabel: String,
+    confirmButtonLabel: String,
+    onPickFile: () -> Unit,
+    onConfirmText: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var jsonInput by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title, fontWeight = FontWeight.ExtraBold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Button(
+                    onClick = onPickFile,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.FileOpen, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(fileButtonLabel, fontWeight = FontWeight.Bold)
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                        val clipText = cm?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString()
+                        if (!clipText.isNullOrBlank()) {
+                            jsonInput = clipText
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.ContentPaste, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Pegar desde el portapapeles", fontWeight = FontWeight.SemiBold)
+                }
+
+                OutlinedTextField(
+                    value = jsonInput,
+                    onValueChange = { jsonInput = it },
+                    label = { Text("O pega aquí el contenido JSON") },
+                    placeholder = { Text("{ ... } o [ ... ]") },
+                    minLines = 4,
+                    maxLines = 8,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirmText(jsonInput) },
+                enabled = jsonInput.isNotBlank()
+            ) {
+                Text(confirmButtonLabel, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
 
 @Composable

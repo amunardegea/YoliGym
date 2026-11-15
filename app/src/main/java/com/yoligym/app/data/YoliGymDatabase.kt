@@ -162,25 +162,71 @@ class YoliGymDatabase(private val appContext: Context) :
         }
     }
 
+    private fun upsertExerciseRow(db: SQLiteDatabase, values: ContentValues, id: String): Boolean {
+        val updated = db.update("exercises", values, "id = ?", arrayOf(id))
+        if (updated > 0) return true
+        val rowId = db.insertWithOnConflict("exercises", null, values, SQLiteDatabase.CONFLICT_IGNORE)
+        return rowId != -1L
+    }
+
+    private fun upsertRoutineRow(db: SQLiteDatabase, values: ContentValues, id: String) {
+        val updated = db.update("routines", values, "id = ?", arrayOf(id))
+        if (updated == 0) {
+            db.insertWithOnConflict("routines", null, values, SQLiteDatabase.CONFLICT_IGNORE)
+        }
+    }
+
     fun seedExercisesFromAssets(db: SQLiteDatabase = writableDatabase): Int {
-        var insertedCount = 0
-        try {
+        return try {
             val jsonText = appContext.assets.open("seedExercises.json")
                 .bufferedReader(Charsets.UTF_8)
                 .use { it.readText() }
-            val jsonArray = JSONArray(jsonText)
+            importSeedExercisesJson(jsonText, db).getOrDefault(0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            0
+        }
+    }
+
+    fun importSeedExercisesJson(
+        jsonText: String,
+        db: SQLiteDatabase = writableDatabase
+    ): Result<Int> {
+        return try {
+            val trimmed = jsonText.trim()
+            if (trimmed.isEmpty()) {
+                return Result.failure(IllegalArgumentException("El contenido JSON está vacío."))
+            }
+            val jsonArray = when {
+                trimmed.startsWith("[") -> JSONArray(trimmed)
+                trimmed.startsWith("{") -> {
+                    val root = JSONObject(trimmed)
+                    root.optJSONArray("exercises")
+                        ?: return Result.failure(
+                            IllegalArgumentException("El JSON no contiene una lista de ejercicios válida.")
+                        )
+                }
+                else -> return Result.failure(
+                    IllegalArgumentException("Formato JSON no válido para seedExercises.json.")
+                )
+            }
+
+            var processedCount = 0
             db.beginTransaction()
             try {
                 for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    val id = obj.getString("id")
-                    val name = obj.getString("name")
-                    val category = obj.getString("category")
-                    val muscleGroup = obj.getString("muscle_group")
-                    val measurementType = obj.getString("measurement_type")
-                    val notes = if (obj.isNull("notes")) null else obj.optString("notes")
+                    val obj = jsonArray.optJSONObject(i) ?: continue
+                    val id = obj.optString("id").trim()
+                    val name = obj.optString("name").trim()
+                    if (id.isEmpty() || name.isEmpty()) continue
+
+                    val category = ExerciseCategory.fromDb(obj.optString("category")).dbValue
+                    val muscleGroup = MuscleGroup.fromDb(obj.optString("muscle_group")).dbValue
+                    val measurementType = MeasurementType.fromDb(obj.optString("measurement_type")).dbValue
+                    val notes = if (obj.isNull("notes")) null else obj.optString("notes").takeIf { it.isNotBlank() && it != "null" }
                     val rawVideo = if (obj.isNull("video_url")) null else obj.optString("video_url")
                     val cleanVideo = sanitizeVideoUrl(rawVideo)
+                    val isCustom = if (obj.has("is_custom")) obj.optInt("is_custom", 0) else 0
 
                     val values = ContentValues().apply {
                         put("id", id)
@@ -190,24 +236,23 @@ class YoliGymDatabase(private val appContext: Context) :
                         put("measurement_type", measurementType)
                         put("notes", notes)
                         put("video_url", cleanVideo)
-                        put("is_custom", 0)
+                        put("is_custom", isCustom)
                     }
-                    val rowId = db.insertWithOnConflict(
-                        "exercises",
-                        null,
-                        values,
-                        SQLiteDatabase.CONFLICT_REPLACE
-                    )
-                    if (rowId != -1L) insertedCount++
+                    if (upsertExerciseRow(db, values, id)) {
+                        processedCount++
+                    }
+                }
+                if (processedCount == 0) {
+                    throw IllegalArgumentException("No se encontró ningún ejercicio válido en el archivo JSON.")
                 }
                 db.setTransactionSuccessful()
             } finally {
                 db.endTransaction()
             }
+            Result.success(processedCount)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Result.failure(e)
         }
-        return insertedCount
     }
 
     fun seedDefaultRoutines(db: SQLiteDatabase = writableDatabase) {
@@ -1153,6 +1198,13 @@ class YoliGymDatabase(private val appContext: Context) :
         db.delete("workout_sessions", null, null)
     }
 
+    data class BackupImportSummary(
+        val exercisesCount: Int,
+        val routinesCount: Int,
+        val sessionsCount: Int,
+        val setsCount: Int
+    )
+
     fun exportBackupJson(): String {
         val root = JSONObject()
         root.put("exportedAt", nowIsoString())
@@ -1174,6 +1226,33 @@ class YoliGymDatabase(private val appContext: Context) :
             )
         }
         root.put("exercises", exercisesArr)
+
+        val routinesArr = JSONArray()
+        getAllRoutinesWithExercises().forEach { rwe ->
+            val rObj = JSONObject().apply {
+                put("id", rwe.routine.id)
+                put("name", rwe.routine.name)
+                put("description", rwe.routine.description)
+                put("created_at", rwe.routine.createdAt)
+            }
+            val itemsArr = JSONArray()
+            rwe.items.forEach { item ->
+                itemsArr.put(
+                    JSONObject().apply {
+                        put("id", item.id)
+                        put("exercise_id", item.exerciseId)
+                        put("order_index", item.orderIndex)
+                        put("target_sets", item.targetSets)
+                        put("target_reps", item.targetReps)
+                        put("target_duration_seconds", item.targetDurationSeconds)
+                        put("target_rest_seconds", item.targetRestSeconds)
+                    }
+                )
+            }
+            rObj.put("items", itemsArr)
+            routinesArr.put(rObj)
+        }
+        root.put("routines", routinesArr)
 
         val sessionsArr = JSONArray()
         getCompletedSessions().forEach { detail ->
@@ -1208,6 +1287,198 @@ class YoliGymDatabase(private val appContext: Context) :
         }
         root.put("sessions", sessionsArr)
         return root.toString(2)
+    }
+
+    fun importBackupJson(jsonText: String): Result<BackupImportSummary> {
+        return try {
+            val trimmed = jsonText.trim()
+            if (trimmed.isEmpty()) {
+                return Result.failure(IllegalArgumentException("El contenido del backup está vacío."))
+            }
+            val root = JSONObject(trimmed)
+            val exercisesArr = root.optJSONArray("exercises")
+            val routinesArr = root.optJSONArray("routines")
+            val sessionsArr = root.optJSONArray("sessions")
+
+            if (exercisesArr == null && routinesArr == null && sessionsArr == null) {
+                return Result.failure(
+                    IllegalArgumentException("El archivo JSON no tiene el formato de Backup de YoliGym.")
+                )
+            }
+
+            val db = writableDatabase
+            var exCount = 0
+            var routCount = 0
+            var sessCount = 0
+            var setsCount = 0
+
+            db.beginTransaction()
+            try {
+                // 1. Importar ejercicios
+                if (exercisesArr != null) {
+                    for (i in 0 until exercisesArr.length()) {
+                        val obj = exercisesArr.optJSONObject(i) ?: continue
+                        val id = obj.optString("id").trim()
+                        val name = obj.optString("name").trim()
+                        if (id.isEmpty() || name.isEmpty()) continue
+
+                        val category = ExerciseCategory.fromDb(obj.optString("category")).dbValue
+                        val muscleGroup = MuscleGroup.fromDb(obj.optString("muscle_group")).dbValue
+                        val measurementType = MeasurementType.fromDb(obj.optString("measurement_type")).dbValue
+                        val notes = if (obj.isNull("notes")) null else obj.optString("notes").takeIf { it.isNotBlank() && it != "null" }
+                        val rawVideo = if (obj.isNull("video_url")) null else obj.optString("video_url")
+                        val cleanVideo = sanitizeVideoUrl(rawVideo)
+                        val isCustom = obj.optInt("is_custom", 0)
+
+                        val values = ContentValues().apply {
+                            put("id", id)
+                            put("name", name)
+                            put("category", category)
+                            put("muscle_group", muscleGroup)
+                            put("measurement_type", measurementType)
+                            put("notes", notes)
+                            put("video_url", cleanVideo)
+                            put("is_custom", isCustom)
+                        }
+                        if (upsertExerciseRow(db, values, id)) {
+                            exCount++
+                        }
+                    }
+                }
+
+                // Conjunto de IDs de ejercicios existentes para asegurar integridad referencial
+                val validExerciseIds = mutableSetOf<String>()
+                db.rawQuery("SELECT id FROM exercises", null).use { c ->
+                    while (c.moveToNext()) validExerciseIds.add(c.getString(0))
+                }
+
+                // 2. Importar rutinas (si están incluidas en el backup)
+                if (routinesArr != null) {
+                    for (i in 0 until routinesArr.length()) {
+                        val rObj = routinesArr.optJSONObject(i) ?: continue
+                        val rId = rObj.optString("id").trim()
+                        val rName = rObj.optString("name").trim()
+                        if (rId.isEmpty() || rName.isEmpty()) continue
+
+                        val rDesc = if (rObj.isNull("description")) null else rObj.optString("description").takeIf { it.isNotBlank() && it != "null" }
+                        val rCreated = rObj.optString("created_at").ifBlank { nowIsoString() }
+
+                        val rValues = ContentValues().apply {
+                            put("id", rId)
+                            put("name", rName)
+                            put("description", rDesc)
+                            put("created_at", rCreated)
+                        }
+                        upsertRoutineRow(db, rValues, rId)
+                        routCount++
+
+                        val itemsArr = rObj.optJSONArray("items")
+                        if (itemsArr != null) {
+                            db.delete("routine_exercises", "routine_id = ?", arrayOf(rId))
+                            for (j in 0 until itemsArr.length()) {
+                                val itemObj = itemsArr.optJSONObject(j) ?: continue
+                                val exId = itemObj.optString("exercise_id").trim()
+                                if (exId !in validExerciseIds) continue
+
+                                val itemId = itemObj.optString("id").ifBlank { "${rId}_${j + 1}" }
+                                val reValues = ContentValues().apply {
+                                    put("id", itemId)
+                                    put("routine_id", rId)
+                                    put("exercise_id", exId)
+                                    put("order_index", itemObj.optInt("order_index", j + 1))
+                                    put("target_sets", itemObj.optInt("target_sets", 4))
+                                    put("target_reps", itemObj.optString("target_reps", "12-15"))
+                                    put("target_duration_seconds", itemObj.optInt("target_duration_seconds", 0))
+                                    put("target_rest_seconds", itemObj.optInt("target_rest_seconds", 90))
+                                }
+                                db.insertWithOnConflict("routine_exercises", null, reValues, SQLiteDatabase.CONFLICT_REPLACE)
+                            }
+                        }
+                    }
+                }
+
+                // Conjunto de IDs de rutinas existentes
+                val validRoutineIds = mutableSetOf<String>()
+                db.rawQuery("SELECT id FROM routines", null).use { c ->
+                    while (c.moveToNext()) validRoutineIds.add(c.getString(0))
+                }
+
+                // 3. Importar sesiones e historial de series
+                if (sessionsArr != null) {
+                    for (i in 0 until sessionsArr.length()) {
+                        val sObj = sessionsArr.optJSONObject(i) ?: continue
+                        val sId = sObj.optString("id").trim()
+                        val sName = sObj.optString("name").trim().ifBlank { "Entrenamiento" }
+                        val startedAt = sObj.optString("started_at").trim().ifBlank { nowIsoString() }
+                        if (sId.isEmpty()) continue
+
+                        val rawRoutineId = if (sObj.isNull("routine_id")) null else sObj.optString("routine_id").takeIf { it.isNotBlank() && it != "null" }
+                        val safeRoutineId = if (rawRoutineId != null && rawRoutineId in validRoutineIds) rawRoutineId else null
+                        val finishedAt = if (sObj.isNull("finished_at")) nowIsoString() else sObj.optString("finished_at").takeIf { it.isNotBlank() && it != "null" } ?: nowIsoString()
+                        val durationSec = if (sObj.isNull("duration_seconds")) 0 else sObj.optInt("duration_seconds", 0)
+                        val sNotes = if (sObj.isNull("notes")) null else sObj.optString("notes").takeIf { it.isNotBlank() && it != "null" }
+
+                        val sValues = ContentValues().apply {
+                            put("id", sId)
+                            if (safeRoutineId != null) put("routine_id", safeRoutineId) else putNull("routine_id")
+                            put("name", sName)
+                            put("started_at", startedAt)
+                            put("finished_at", finishedAt)
+                            put("duration_seconds", durationSec)
+                            if (sNotes != null) put("notes", sNotes) else putNull("notes")
+                        }
+                        val updatedSess = db.update("workout_sessions", sValues, "id = ?", arrayOf(sId))
+                        if (updatedSess == 0) {
+                            db.insertWithOnConflict("workout_sessions", null, sValues, SQLiteDatabase.CONFLICT_IGNORE)
+                        }
+                        sessCount++
+
+                        val setsArr = sObj.optJSONArray("sets")
+                        if (setsArr != null) {
+                            db.delete("workout_sets", "session_id = ?", arrayOf(sId))
+                            for (j in 0 until setsArr.length()) {
+                                val setObj = setsArr.optJSONObject(j) ?: continue
+                                val exId = setObj.optString("exercise_id").trim()
+                                if (exId !in validExerciseIds) continue
+
+                                val setId = setObj.optString("id").ifBlank { "set_${UUID.randomUUID().toString().take(8)}" }
+                                val setValues = ContentValues().apply {
+                                    put("id", setId)
+                                    put("session_id", sId)
+                                    put("exercise_id", exId)
+                                    put("set_number", setObj.optInt("set_number", j + 1))
+                                    put("weight_kg", setObj.optDouble("weight_kg", 0.0))
+                                    put("reps", setObj.optInt("reps", 0))
+                                    put("duration_seconds", setObj.optInt("duration_seconds", 0))
+                                    if (!setObj.isNull("rpe")) put("rpe", setObj.optDouble("rpe")) else putNull("rpe")
+                                    put("is_warmup", setObj.optInt("is_warmup", 0))
+                                    put("is_completed", setObj.optInt("is_completed", 1))
+                                    val compAt = if (setObj.isNull("completed_at")) null else setObj.optString("completed_at").takeIf { it.isNotBlank() && it != "null" }
+                                    if (compAt != null) put("completed_at", compAt) else putNull("completed_at")
+                                }
+                                db.insertWithOnConflict("workout_sets", null, setValues, SQLiteDatabase.CONFLICT_REPLACE)
+                                setsCount++
+                            }
+                        }
+                    }
+                }
+
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
+
+            Result.success(
+                BackupImportSummary(
+                    exercisesCount = exCount,
+                    routinesCount = routCount,
+                    sessionsCount = sessCount,
+                    setsCount = setsCount
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
 
