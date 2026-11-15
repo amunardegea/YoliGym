@@ -42,7 +42,7 @@ La aplicación sigue una arquitectura **MVVM reactiva y desacoplada** dentro del
     - `seedDefaultRoutines()`: Crea 4 rutinas base (`Día 1 · Fuerza y Equilibrio`, `Día 2 · Máquinas y Control Motor`, `Movilidad y Equilibrio (Romberg)`, `Fuerza Full Body · Peso Libre`).
   - **Lógica de sesiones:**
     - Una sesión activa es aquella fila en `workout_sessions` donde `finished_at IS NULL`.
-    - Al iniciar una sesión desde una rutina (`startWorkoutFromRoutine`) o añadir un ejercicio (`addExerciseToSession`), las series se pre-rellenan automáticamente con el último peso/repeticiones/duración completados históricamente por el usuario para ese ejercicio (`getLastCompletedNumbers`).
+    - Al iniciar una sesión desde una rutina (`startWorkoutFromRoutine`) o añadir un ejercicio (`addExerciseToSession`), cada serie (`set_number`) se pre-rellena automáticamente con el peso, repeticiones o duración completados en esa misma serie (`set_number`) de la sesión anterior de ese ejercicio (`getLastCompletedNumbersForSet`), con fallback a la última serie completada del ejercicio (`getLastCompletedNumbers`) si es una serie adicional nueva.
 
 ### Capa de Estado y Lógica de Presentación (`app/src/main/java/com/yoligym/app/ui/`)
 - **`YoliGymViewModel.kt`**:

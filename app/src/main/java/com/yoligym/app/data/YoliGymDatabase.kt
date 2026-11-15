@@ -713,21 +713,82 @@ class YoliGymDatabase(private val appContext: Context) :
         }
     }
 
-    private fun getLastCompletedNumbers(exerciseId: String): Triple<Double, Int, Int>? {
-        return readableDatabase.rawQuery(
+    private fun getLastCompletedNumbers(
+        exerciseId: String,
+        excludeSessionId: String? = null
+    ): Triple<Double, Int, Int>? {
+        val query = if (excludeSessionId != null) {
+            """
+            SELECT weight_kg, reps, duration_seconds
+            FROM workout_sets
+            WHERE exercise_id = ? AND is_completed = 1 AND session_id != ?
+            ORDER BY completed_at DESC, rowid DESC
+            LIMIT 1
+            """.trimIndent()
+        } else {
             """
             SELECT weight_kg, reps, duration_seconds
             FROM workout_sets
             WHERE exercise_id = ? AND is_completed = 1
             ORDER BY completed_at DESC, rowid DESC
             LIMIT 1
-            """.trimIndent(),
+            """.trimIndent()
+        }
+        val args = if (excludeSessionId != null) {
+            arrayOf(exerciseId, excludeSessionId)
+        } else {
             arrayOf(exerciseId)
-        ).use { c ->
+        }
+        return readableDatabase.rawQuery(query, args).use { c ->
             if (c.moveToFirst()) {
                 Triple(c.getDouble(0), c.getInt(1), c.getInt(2))
             } else null
         }
+    }
+
+    private fun getPreviousNumbersForExactSet(
+        exerciseId: String,
+        setNumber: Int,
+        excludeSessionId: String? = null
+    ): Triple<Double, Int, Int>? {
+        val query = if (excludeSessionId != null) {
+            """
+            SELECT s.weight_kg, s.reps, s.duration_seconds
+            FROM workout_sets s
+            JOIN workout_sessions ws ON ws.id = s.session_id
+            WHERE s.exercise_id = ? AND s.set_number = ? AND s.is_completed = 1 AND s.session_id != ?
+            ORDER BY COALESCE(s.completed_at, ws.started_at) DESC, s.rowid DESC
+            LIMIT 1
+            """.trimIndent()
+        } else {
+            """
+            SELECT s.weight_kg, s.reps, s.duration_seconds
+            FROM workout_sets s
+            JOIN workout_sessions ws ON ws.id = s.session_id
+            WHERE s.exercise_id = ? AND s.set_number = ? AND s.is_completed = 1
+            ORDER BY COALESCE(s.completed_at, ws.started_at) DESC, s.rowid DESC
+            LIMIT 1
+            """.trimIndent()
+        }
+        val args = if (excludeSessionId != null) {
+            arrayOf(exerciseId, setNumber.toString(), excludeSessionId)
+        } else {
+            arrayOf(exerciseId, setNumber.toString())
+        }
+        return readableDatabase.rawQuery(query, args).use { c ->
+            if (c.moveToFirst()) {
+                Triple(c.getDouble(0), c.getInt(1), c.getInt(2))
+            } else null
+        }
+    }
+
+    private fun getLastCompletedNumbersForSet(
+        exerciseId: String,
+        setNumber: Int,
+        excludeSessionId: String? = null
+    ): Triple<Double, Int, Int>? {
+        return getPreviousNumbersForExactSet(exerciseId, setNumber, excludeSessionId)
+            ?: getLastCompletedNumbers(exerciseId, excludeSessionId)
     }
 
     private fun parseDefaultReps(targetReps: String): Int {
@@ -754,19 +815,29 @@ class YoliGymDatabase(private val appContext: Context) :
             db.insert("workout_sessions", null, sValues)
 
             for (item in routineWithExercises.items) {
-                val lastNumbers = getLastCompletedNumbers(item.exerciseId)
-                val defaultWeight = lastNumbers?.first ?: when (item.exercise.category) {
+                val fallbackWeight = when (item.exercise.category) {
                     ExerciseCategory.MACHINE -> 25.0
                     ExerciseCategory.FREE_WEIGHT -> if (item.exercise.measurementType == MeasurementType.WEIGHT_REPS) 10.0 else 0.0
                     ExerciseCategory.MOBILITY -> 0.0
                 }
-                val defaultReps = lastNumbers?.second?.takeIf { it > 0 }
-                    ?: if (item.exercise.measurementType == MeasurementType.TIME_SECONDS) 1 else parseDefaultReps(item.targetReps)
-                val defaultDuration = lastNumbers?.third?.takeIf { it > 0 }
-                    ?: if (item.targetDurationSeconds > 0) item.targetDurationSeconds else 20
+                val fallbackReps = if (item.exercise.measurementType == MeasurementType.TIME_SECONDS) {
+                    1
+                } else {
+                    parseDefaultReps(item.targetReps)
+                }
+                val fallbackDuration = if (item.targetDurationSeconds > 0) item.targetDurationSeconds else 20
 
                 val count = item.targetSets.coerceIn(1, 15)
                 for (setNum in 1..count) {
+                    val lastNumbers = getLastCompletedNumbersForSet(
+                        exerciseId = item.exerciseId,
+                        setNumber = setNum,
+                        excludeSessionId = sessionId
+                    )
+                    val defaultWeight = lastNumbers?.first ?: fallbackWeight
+                    val defaultReps = lastNumbers?.second?.takeIf { it > 0 } ?: fallbackReps
+                    val defaultDuration = lastNumbers?.third?.takeIf { it > 0 } ?: fallbackDuration
+
                     val setValues = ContentValues().apply {
                         put("id", "set_${UUID.randomUUID().toString().take(8)}")
                         put("session_id", sessionId)
@@ -814,20 +885,28 @@ class YoliGymDatabase(private val appContext: Context) :
             if (it.moveToFirst() && !it.isNull(0)) it.getInt(0) else 0
         }
 
-        val lastNumbers = getLastCompletedNumbers(exercise.id)
-        val defaultWeight = lastNumbers?.first ?: when (exercise.category) {
+        val fallbackWeight = when (exercise.category) {
             ExerciseCategory.MACHINE -> 25.0
             ExerciseCategory.FREE_WEIGHT -> if (exercise.measurementType == MeasurementType.WEIGHT_REPS) 10.0 else 0.0
             ExerciseCategory.MOBILITY -> 0.0
         }
-        val defaultReps = lastNumbers?.second?.takeIf { it > 0 } ?: 12
-        val defaultDuration = lastNumbers?.third?.takeIf { it > 0 } ?: 20
+        val fallbackReps = 12
+        val fallbackDuration = 20
 
         db.beginTransaction()
         try {
             val setsToCreate = if (existingMaxSet == 0) setsCount else 1
             for (i in 1..setsToCreate) {
                 val setNum = existingMaxSet + i
+                val lastNumbers = getLastCompletedNumbersForSet(
+                    exerciseId = exercise.id,
+                    setNumber = setNum,
+                    excludeSessionId = sessionId
+                )
+                val defaultWeight = lastNumbers?.first ?: fallbackWeight
+                val defaultReps = lastNumbers?.second?.takeIf { it > 0 } ?: fallbackReps
+                val defaultDuration = lastNumbers?.third?.takeIf { it > 0 } ?: fallbackDuration
+
                 val values = ContentValues().apply {
                     put("id", "set_${UUID.randomUUID().toString().take(8)}")
                     put("session_id", sessionId)
@@ -857,14 +936,19 @@ class YoliGymDatabase(private val appContext: Context) :
         }
 
         val nextSetNumber = (lastSet?.setNumber ?: 0) + 1
+        val prevExactSet = getPreviousNumbersForExactSet(
+            exerciseId = exerciseId,
+            setNumber = nextSetNumber,
+            excludeSessionId = sessionId
+        )
         val values = ContentValues().apply {
             put("id", "set_${UUID.randomUUID().toString().take(8)}")
             put("session_id", sessionId)
             put("exercise_id", exerciseId)
             put("set_number", nextSetNumber)
-            put("weight_kg", lastSet?.weightKg ?: 0.0)
-            put("reps", lastSet?.reps ?: 12)
-            put("duration_seconds", lastSet?.durationSeconds ?: 20)
+            put("weight_kg", prevExactSet?.first ?: lastSet?.weightKg ?: 0.0)
+            put("reps", prevExactSet?.second?.takeIf { it > 0 } ?: lastSet?.reps ?: 12)
+            put("duration_seconds", prevExactSet?.third?.takeIf { it > 0 } ?: lastSet?.durationSeconds ?: 20)
             put("rpe", lastSet?.rpe)
             put("is_warmup", 0)
             put("is_completed", 0)
