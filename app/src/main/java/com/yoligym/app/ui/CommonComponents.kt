@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -171,23 +172,25 @@ fun LargeOneHandStepper(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
-            .height(48.dp)
+            .heightIn(min = 46.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 3.dp)
+            .padding(horizontal = 2.dp, vertical = 3.dp)
     ) {
         Surface(
             onClick = onDecrement,
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
             shape = RoundedCornerShape(9.dp),
-            modifier = Modifier.width(32.dp).height(40.dp)
+            modifier = Modifier
+                .width(28.dp)
+                .height(38.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.Remove,
                     contentDescription = "Disminuir",
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -197,23 +200,28 @@ fun LargeOneHandStepper(
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onDirectEdit)
+                .padding(horizontal = 2.dp)
         ) {
             Text(
                 text = valueText,
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 15.sp,
+                fontSize = 14.sp,
+                lineHeight = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 softWrap = false,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = unitLabel,
-                fontSize = 10.sp,
+                fontSize = 9.sp,
+                lineHeight = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 softWrap = false,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -221,14 +229,16 @@ fun LargeOneHandStepper(
             onClick = onIncrement,
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
             shape = RoundedCornerShape(9.dp),
-            modifier = Modifier.width(32.dp).height(40.dp)
+            modifier = Modifier
+                .width(28.dp)
+                .height(38.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Aumentar",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -349,10 +359,15 @@ fun ExerciseDetailDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        modifier = Modifier.padding(vertical = 14.dp, horizontal = 8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp, horizontal = 8.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(
                                 text = when (exercise.measurementType) {
                                     MeasurementType.WEIGHT_REPS -> "${formatWeight(stats.maxWeightKg)} kg"
@@ -360,38 +375,57 @@ fun ExerciseDetailDialog(
                                     MeasurementType.TIME_SECONDS -> "${stats.maxDurationSeconds}s"
                                 },
                                 fontWeight = FontWeight.ExtraBold,
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 text = "Mejor Marca (PR)",
                                 fontSize = 11.sp,
+                                lineHeight = 14.sp,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(
                                 text = "${stats.totalCompletedSets}",
                                 fontWeight = FontWeight.ExtraBold,
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "Series Totales",
                                 fontSize = 11.sp,
+                                lineHeight = 14.sp,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
                             Text(
                                 text = stats.lastPerformanceText ?: "Sin datos",
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
+                                fontSize = 13.sp,
+                                lineHeight = 16.sp,
+                                textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.secondary
                             )
                             Text(
                                 text = "Última Serie",
                                 fontSize = 11.sp,
+                                lineHeight = 14.sp,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -435,13 +469,19 @@ fun ExerciseDetailDialog(
                             contentColor = Color.White
                         ),
                         shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .heightIn(min = 48.dp)
                     ) {
                         Icon(Icons.Default.PlayCircleFilled, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Ver Vídeo Demostrativo (YouTube)", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Ver Vídeo Demostrativo (YouTube)",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
 
@@ -490,13 +530,14 @@ fun ExerciseDetailDialog(
                     OutlinedButton(
                         onClick = onEdit,
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp)
+                            .heightIn(min = 48.dp)
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Editar")
+                        Text("Editar", fontSize = 13.sp)
                     }
 
                     if (onDelete != null && exercise.isCustom) {
@@ -506,13 +547,14 @@ fun ExerciseDetailDialog(
                                 contentColor = MaterialTheme.colorScheme.error
                             ),
                             shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(48.dp)
+                                .heightIn(min = 48.dp)
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Eliminar")
+                            Text("Eliminar", fontSize = 13.sp)
                         }
                     }
                 }
@@ -648,11 +690,12 @@ fun ExerciseFormDialog(
                     OutlinedButton(
                         onClick = onDismiss,
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text("Cancelar")
+                        Text("Cancelar", fontSize = 13.sp)
                     }
                     Button(
                         onClick = {
@@ -671,11 +714,12 @@ fun ExerciseFormDialog(
                         },
                         enabled = name.isNotBlank(),
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text("Guardar", fontWeight = FontWeight.Bold)
+                        Text("Guardar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

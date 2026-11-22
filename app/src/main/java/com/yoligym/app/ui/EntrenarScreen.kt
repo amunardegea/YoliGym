@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -66,6 +67,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -239,10 +241,11 @@ private fun RoutineDashboardView(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${uiState.globalStats.totalSessions} sesiones",
+                            text = "${uiState.globalStats.totalSessions} ${if (uiState.globalStats.totalSessions == 1) "sesión" else "sesiones"}",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            maxLines = 1
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -259,15 +262,18 @@ private fun RoutineDashboardView(
                 Text(
                     text = "Mis Rutinas (${uiState.routines.size})",
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.weight(1f)
                 )
+                Spacer(modifier = Modifier.width(8.dp))
                 OutlinedButton(
                     onClick = onCreateRoutine,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Nueva Rutina", fontWeight = FontWeight.Bold)
+                    Text("Nueva Rutina", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -281,7 +287,7 @@ private fun RoutineDashboardView(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -349,7 +355,7 @@ private fun RoutineDashboardView(
 
                     routineWithEx.items.forEachIndexed { idx, item ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = Alignment.Top,
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -358,7 +364,7 @@ private fun RoutineDashboardView(
                                 .padding(vertical = 5.dp, horizontal = 4.dp)
                         ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
@@ -366,13 +372,15 @@ private fun RoutineDashboardView(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontSize = 13.sp,
-                                    modifier = Modifier.width(24.dp)
+                                    lineHeight = 17.sp,
+                                    modifier = Modifier.width(22.dp)
                                 )
                                 Text(
                                     text = item.exercise.name,
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontSize = 13.sp,
+                                    lineHeight = 17.sp,
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
+                                    maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -384,7 +392,10 @@ private fun RoutineDashboardView(
                                     else -> "${item.targetSets} × ${item.targetReps}"
                                 },
                                 fontSize = 12.sp,
+                                lineHeight = 17.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                softWrap = false,
                                 color = MaterialTheme.colorScheme.secondary
                             )
                         }
@@ -395,16 +406,18 @@ private fun RoutineDashboardView(
                     Button(
                         onClick = { onStartRoutine(routineWithEx) },
                         shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp)
+                            .heightIn(min = 50.dp)
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "EMPEZAR RUTINA",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 15.sp
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -426,7 +439,7 @@ private fun RoutineDashboardView(
                         shape = RoundedCornerShape(20.dp)
                     )
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Sesión Rápida",
                         style = MaterialTheme.typography.titleMedium,
@@ -442,16 +455,18 @@ private fun RoutineDashboardView(
                     Button(
                         onClick = onStartFreeWorkout,
                         shape = RoundedCornerShape(14.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp)
+                            .heightIn(min = 50.dp)
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "INICIAR ENTRENAMIENTO LIBRE",
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 15.sp
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -460,6 +475,7 @@ private fun RoutineDashboardView(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActiveWorkoutView(
     sessionDetail: SessionDetail,
@@ -478,13 +494,17 @@ private fun ActiveWorkoutView(
             tonalElevation = 4.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
@@ -501,25 +521,25 @@ private fun ActiveWorkoutView(
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
                             Text(
                                 text = "⏱ ${formatDurationSeconds(uiState.workoutElapsedSeconds)}",
                                 fontWeight = FontWeight.ExtraBold,
-                                fontSize = 15.sp,
+                                fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 text = "✓ ${sessionDetail.completedSetsCount}/${sessionDetail.totalSetsCount} series",
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             if (sessionDetail.totalVolumeKg > 0) {
                                 Text(
                                     text = "${formatWeight(sessionDetail.totalVolumeKg)} kg",
-                                    fontSize = 13.sp,
+                                    fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.secondary,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -527,7 +547,7 @@ private fun ActiveWorkoutView(
                         }
                     }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         FilledTonalIconButton(
                             onClick = { viewModel.startRestTimer() }
                         ) {
@@ -540,11 +560,17 @@ private fun ActiveWorkoutView(
                         Button(
                             onClick = { showFinishDialog = true },
                             shape = RoundedCornerShape(12.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("FINALIZAR", fontWeight = FontWeight.ExtraBold)
+                            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "FINALIZAR",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                maxLines = 1,
+                                softWrap = false
+                            )
                         }
                     }
                 }
@@ -561,71 +587,83 @@ private fun ActiveWorkoutView(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.Timer,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary
+                            Icon(
+                                Icons.Default.Timer,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Descanso: ${formatDurationSeconds(uiState.restRemainingSeconds)}",
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 15.sp,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        text = "Descanso: ${formatDurationSeconds(uiState.restRemainingSeconds)}",
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                    Text(
-                                        text = "Prepárate para la siguiente serie",
-                                        fontSize = 11.sp,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
-                                    )
-                                }
-                            }
-
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Surface(
-                                    onClick = { viewModel.adjustRestTimer(-15) },
-                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text(
-                                        text = "-15s",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                                    )
-                                }
-                                Surface(
-                                    onClick = { viewModel.adjustRestTimer(+15) },
-                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text(
-                                        text = "+15s",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                                    )
-                                }
-                                Surface(
-                                    onClick = { viewModel.stopRestTimer() },
-                                    color = MaterialTheme.colorScheme.error,
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text(
-                                        text = "Saltar",
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                                    )
-                                }
+                                Text(
+                                    text = "Prepárate para la siguiente serie",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                )
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Surface(
+                                onClick = { viewModel.adjustRestTimer(-15) },
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = "-15s",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                            Surface(
+                                onClick = { viewModel.adjustRestTimer(+15) },
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = "+15s",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                            Surface(
+                                onClick = { viewModel.stopRestTimer() },
+                                color = MaterialTheme.colorScheme.error,
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = "Saltar",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(8.dp))
                         val progress = if (uiState.restTotalSeconds > 0) {
                             uiState.restRemainingSeconds.toFloat() / uiState.restTotalSeconds.toFloat()
@@ -646,8 +684,8 @@ private fun ActiveWorkoutView(
 
         // Scrollable Exercise Cards in Active Workout
         LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
             modifier = Modifier.weight(1f)
         ) {
             if (sessionDetail.exercises.isEmpty()) {
@@ -722,15 +760,18 @@ private fun ActiveWorkoutView(
                             containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSecondary
                         ),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp)
+                            .heightIn(min = 50.dp)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "AÑADIR EJERCICIO A LA SESIÓN",
-                            fontWeight = FontWeight.ExtraBold
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            textAlign = TextAlign.Center
                         )
                     }
 
@@ -740,13 +781,14 @@ private fun ActiveWorkoutView(
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.error
                         ),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .heightIn(min = 46.dp)
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Descartar Entrenamiento")
+                        Text("Descartar Entrenamiento", fontSize = 13.sp, textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -848,6 +890,7 @@ private fun FilledTonalIconButton(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ActiveExerciseCard(
     exGroup: ExerciseSessionSets,
@@ -870,7 +913,7 @@ private fun ActiveExerciseCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -887,9 +930,9 @@ private fun ActiveExerciseCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Row(
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         CategoryBadge(ex.category)
                         MuscleBadge(ex.muscleGroup)
@@ -898,7 +941,8 @@ private fun ActiveExerciseCard(
                                 text = "Ant: ${exGroup.previousBestText}",
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.secondary,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
                         }
                     }
@@ -918,13 +962,14 @@ private fun ActiveExerciseCard(
                 Text(
                     text = ex.notes,
                     fontSize = 12.sp,
+                    lineHeight = 16.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Sets Rows
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -938,12 +983,12 @@ private fun ActiveExerciseCard(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(14.dp))
                             .background(rowBg)
-                            .padding(horizontal = 8.dp, vertical = 6.dp)
+                            .padding(horizontal = 6.dp, vertical = 6.dp)
                     ) {
                         // Set Number / Warmup Badge (tap to toggle warmup)
                         Surface(
@@ -963,13 +1008,13 @@ private fun ActiveExerciseCard(
                                 MaterialTheme.colorScheme.surfaceVariant
                             },
                             shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.size(38.dp)
+                            modifier = Modifier.size(32.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
                                     text = if (set.isWarmup) "C" else "${set.setNumber}",
                                     fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 14.sp,
+                                    fontSize = 13.sp,
                                     color = if (set.isWarmup) {
                                         MaterialTheme.colorScheme.tertiary
                                     } else {
@@ -1040,7 +1085,7 @@ private fun ActiveExerciseCard(
                             MeasurementType.REPS_ONLY -> {
                                 LargeOneHandStepper(
                                     valueText = "${set.reps}",
-                                    unitLabel = "REPETICIONES / PASOS (Obj: ${exGroup.targetRepsHint})",
+                                    unitLabel = "REPS (Obj: ${exGroup.targetRepsHint})",
                                     onDecrement = {
                                         onUpdateSet(
                                             set,
@@ -1069,7 +1114,7 @@ private fun ActiveExerciseCard(
                             MeasurementType.TIME_SECONDS -> {
                                 LargeOneHandStepper(
                                     valueText = "${set.durationSeconds}s",
-                                    unitLabel = "TIEMPO OBJETIVO",
+                                    unitLabel = "SEGUNDOS",
                                     onDecrement = {
                                         onUpdateSet(
                                             set,
@@ -1103,23 +1148,24 @@ private fun ActiveExerciseCard(
                                         MaterialTheme.colorScheme.secondaryContainer
                                     },
                                     shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.height(48.dp)
+                                    modifier = Modifier.heightIn(min = 46.dp)
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(horizontal = 10.dp)
+                                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 10.dp)
                                     ) {
                                         Icon(
                                             imageVector = if (isTimedRunning) Icons.Default.Stop else Icons.Default.PlayArrow,
                                             contentDescription = "Cronometrar serie",
                                             tint = if (isTimedRunning) Color.Black else MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.size(18.dp)
+                                            modifier = Modifier.size(16.dp)
                                         )
-                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = if (isTimedRunning) "${activeTimedSetRemaining}s" else "Crono",
                                             fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 13.sp,
+                                            fontSize = 12.sp,
+                                            maxLines = 1,
                                             color = if (isTimedRunning) Color.Black else MaterialTheme.colorScheme.onSecondaryContainer
                                         )
                                     }
@@ -1127,7 +1173,7 @@ private fun ActiveExerciseCard(
                             }
                         }
 
-                        // Large Check Button (One-hand friendly 48dp)
+                        // Large Check Button (One-hand friendly)
                         Surface(
                             onClick = {
                                 onUpdateSet(
@@ -1145,7 +1191,7 @@ private fun ActiveExerciseCard(
                                 MaterialTheme.colorScheme.surfaceVariant
                             },
                             shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(42.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
@@ -1156,7 +1202,7 @@ private fun ActiveExerciseCard(
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
                                     },
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(22.dp)
                                 )
                             }
                         }
@@ -1174,9 +1220,10 @@ private fun ActiveExerciseCard(
                 OutlinedButton(
                     onClick = onAddSet,
                     shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                     modifier = Modifier
                         .weight(1f)
-                        .height(42.dp)
+                        .heightIn(min = 42.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
@@ -1187,7 +1234,8 @@ private fun ActiveExerciseCard(
                     OutlinedButton(
                         onClick = onRemoveLastSet,
                         shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.height(42.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.heightIn(min = 42.dp)
                     ) {
                         Icon(Icons.Default.Remove, contentDescription = "Quitar última serie", modifier = Modifier.size(16.dp))
                     }
@@ -1508,11 +1556,12 @@ fun RoutineEditorDialog(
                     OutlinedButton(
                         onClick = onDismiss,
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text("Cancelar")
+                        Text("Cancelar", fontSize = 13.sp)
                     }
                     Button(
                         onClick = {
@@ -1527,11 +1576,17 @@ fun RoutineEditorDialog(
                         },
                         enabled = name.isNotBlank() && draftItems.isNotEmpty(),
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .height(50.dp)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text("Guardar Rutina", fontWeight = FontWeight.ExtraBold)
+                        Text(
+                            text = "Guardar Rutina",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }

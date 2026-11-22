@@ -20,6 +20,7 @@ Este documento proporciona todo el contexto técnico, arquitectónico y operativ
 - **Gradle & AGP:** Gradle `9.8.1` (`gradle/wrapper/gradle-wrapper.properties`), Android Gradle Plugin `9.4.1`
 - **SDK Levels:** `minSdk = 26`, `compileSdk = 37`, `targetSdk = 37`
 - **Persistencia:** SQLite nativo de Android (`android.database.sqlite.SQLiteOpenHelper`) sin ORM intermedio para garantizar control total sobre el esquema SQL y `PRAGMA foreign_keys = ON`. Preferencias ligeras mediante `SharedPreferences` (`yoligym_prefs`).
+- **Backup Automático en GitHub (Multiusuario):** `androidx.work:work-runtime-ktx:2.10.2` + `com.squareup.okhttp3:okhttp:4.12.0` contra GitHub REST API v3 (`/repos/{owner}/{repo}/contents/...`). Almacena el PAT en `SharedPreferences` separado (`yoligym_github_secret`), excluido de Android Auto Backup en `res/xml/backup_rules.xml` y `res/xml/data_extraction_rules.xml`. Ver [`GITHUB_BACKUP_SETUP.md`](./GITHUB_BACKUP_SETUP.md).
 
 ---
 
@@ -44,13 +45,25 @@ La aplicación sigue una arquitectura **MVVM reactiva y desacoplada** dentro del
     - Una sesión activa es aquella fila en `workout_sessions` donde `finished_at IS NULL`.
     - Al iniciar una sesión desde una rutina (`startWorkoutFromRoutine`) o añadir un ejercicio (`addExerciseToSession`), cada serie (`set_number`) se pre-rellena automáticamente con el peso, repeticiones o duración completados en esa misma serie (`set_number`) de la sesión anterior de ese ejercicio (`getLastCompletedNumbersForSet`), con fallback a la última serie completada del ejercicio (`getLastCompletedNumbers`) si es una serie adicional nueva.
 
+### Capa de Backup Automático en GitHub (`app/src/main/java/com/yoligym/app/backup/`)
+- **`GitHubBackupModels.kt`**: Estado `GitHubBackupConfigState`, `GitHubBackupFile`, `GitHubRepoInfo`, `GitHubBackupRunResult` y lógica pura `GitHubBackupNaming` (sanitización de `userId`, parseo de `owner/repo`, rutas `backups/<userId>/yoligym_backup_<userId>_YYYY-MM-DD.json`, aislamiento y retención de últimos 30 días por usuario, cálculo horario y detección de backup pendiente).
+- **`GitHubBackupPreferences.kt`**: Persistencia de configuración/estado en `yoligym_prefs` (`gh_*`) y secreto PAT en `yoligym_github_secret`.
+- **`GitHubRestClient.kt`**: Cliente OkHttp para GitHub REST API v3 (verificación de repositorio, subida/actualización Base64 UTF-8 con reintento ante `409`, listado del directorio del usuario, descarga `raw` y borrado).
+- **`GitHubBackupScheduler.kt`** y **`GitHubBackupWorker.kt`**: `PeriodicWorkRequest` cada 24h y trabajo *catch-up* al iniciar la app si toca backup hoy; exportación segura usando `YoliGymDatabase.getInstance(context)`.
+- **`GitHubBackupManager.kt`**: Orquestador de verificación de repositorio, backup diario, poda aislada de 30 días por usuario y restauración.
+
+### Capa de Temporizador en Segundo Plano (`app/src/main/java/com/yoligym/app/timer/`) y `YoliGymApplication.kt`
+- **`YoliGymApplication.kt`**: Crea al arranque los canales de notificación (`yoligym_rest_ongoing_v1`, `yoligym_rest_finished_v1`, `yoligym_rest_finished_novib_v1`) y mantiene `RestTimerForegroundTracker.isAppInForeground` mediante `ActivityLifecycleCallbacks`.
+- **`RestTimerLogic.kt`**, **`RestTimerStore.kt`** y **`RestTimerForegroundTracker.kt`**: Reloj basado en timestamp (`endTimeMillis`) persistido en `yoligym_prefs` con `claimCompletion()` sincronizado para evitar avisos/vibraciones duplicadas.
+- **`RestTimerCoordinator.kt`**, **`RestTimerReceiver.kt`** y **`RestTimerNotificationHelper.kt`**: Programa alarmas exactas con `AlarmManager.setAlarmClock()` (permiso `USE_EXACT_ALARM`, con fallback `setAndAllowWhileIdle()`), muestra cuenta atrás silenciosa en curso (`+15s` y `Saltar`) y lanza una notificación emergente (*heads-up*, `IMPORTANCE_HIGH`) con sonido y vibración si el descanso finaliza mientras el usuario está en otra app o con la pantalla apagada.
+
 ### Capa de Estado y Lógica de Presentación (`app/src/main/java/com/yoligym/app/ui/`)
 - **`YoliGymViewModel.kt`**:
   - Expone un único `StateFlow<YoliGymUiState>` observado por `MainActivity`.
   - Ejecuta todas las operaciones de base de datos en ` viewModelScope.launch(Dispatchers.IO)`.
   - Gestiona un `tickerJob` (corutina cada 1 segundo) que actualiza:
     1. `workoutElapsedSeconds`: Tiempo transcurrido de la sesión activa (calculado desde `started_at` para resistir recreaciones de Activity).
-    2. `restRemainingSeconds`: Cuenta atrás del temporizador de descanso entre series, disparando vibración (`triggerVibration`) al llegar a `0`.
+    2. `restRemainingSeconds`: Cuenta atrás del temporizador de descanso entre series sincronizada con `RestTimerStore` (`endTimeMillis`), disparando vibración en primer plano o notificación emergente (`IMPORTANCE_HIGH`) en segundo plano al llegar a `0`.
     3. `activeTimedSetId` / `activeTimedSetRemaining`: Temporizador *inline* para series medidas en segundos (`TIME_SECONDS`), que marca automáticamente la serie como completada al finalizar.
 - **Pantallas y Componentes Compose**:
   - **`MainActivity.kt`**: `Scaffold` principal con `SnackbarHost` y `NavigationBar` inferior de 4 pestañas (`ENTRENAR`, `EJERCICIOS`, `HISTORIAL`, `AJUSTES`). Muestra un badge `"ACT"` en la pestaña `Entrenar` cuando hay una sesión en curso.
@@ -59,7 +72,7 @@ La aplicación sigue una arquitectura **MVVM reactiva y desacoplada** dentro del
     - Si `uiState.activeSession != null`: Muestra la vista de entrenamiento activo con cabecera de progreso/cronómetro, barra flotante del temporizador de descanso, tarjetas por ejercicio con su mejor marca previa y controles táctiles grandes (`+/-`) para peso, repeticiones o tiempo.
   - **`EjerciciosScreen.kt`**: Buscador, filtros por categoría y grupo muscular, diálogo de creación/edición (`ExerciseEditorDialog`) y hoja de estadísticas/récords por ejercicio (`ExerciseStatsDialog`).
   - **`HistorialScreen.kt`**: Tarjetas de resumen global y listado de sesiones finalizadas con desglose de series, volumen total, edición de notas y borrado.
-  - **`AjustesScreen.kt`**: Configuración de tema oscuro/claro, paso de peso (`weightStepKg`), tiempo de descanso, exportación de copia de seguridad JSON al portapapeles, restauración de datos semilla y limpieza de historial.
+  - **`AjustesScreen.kt`**: Configuración de tema oscuro/claro, paso de peso (`weightStepKg`), tiempo de descanso, **backup automático diario en GitHub** (repositorio, identificador de usuario, token PAT, Wi-Fi, hora, backup manual y restauración desde GitHub), exportación/importación JSON manual, restauración de datos semilla y limpieza de historial.
   - **`CommonComponents.kt`** y **`Theme.kt`**: Paleta Material 3 (Modo Oscuro por defecto con acentos verde lima/esmeralda de alta visibilidad en gimnasio) y chips/badges reutilizables.
 
 ---
@@ -111,5 +124,5 @@ Si el usuario solicita continuar ampliando la aplicación en una nueva sesión, 
 1. **Importación de Backup JSON:** Actualmente `AjustesScreen` permite exportar la copia de seguridad JSON (`exportBackupJson()`). Añadir la función inversa (`importBackupJson()`) desde el portapapeles o selector de archivos (`ActivityResultContracts.OpenDocument`).
 2. **Gráficas de Progresión:** En el diálogo de estadísticas de un ejercicio (`ExerciseStatsDialog`), añadir una gráfica en Canvas de Jetpack Compose con la evolución del peso máximo, 1RM estimado (fórmula de Epley) o volumen por sesión.
 3. **Reordenación Drag & Drop en Rutinas y Sesiones:** Permitir cambiar el orden de los ejercicios dentro de una sesión activa o al editar una rutina.
-4. **Notificaciones en Segundo Plano para Descanso:** Mostrar una notificación local o servicio ligero si el usuario bloquea la pantalla o sale de la app mientras corre el temporizador de descanso.
+4. **Notificaciones en Segundo Plano para Descanso (Implementado):** Gestionado por `RestTimerCoordinator`, `RestTimerReceiver` y `RestTimerNotificationHelper` con `POST_NOTIFICATIONS` y `USE_EXACT_ALARM`.
 5. **Soporte de Superseries / Biseries:** Agrupar dos o más ejercicios en una misma ronda dentro de `routine_exercises` y `EntrenarScreen`.

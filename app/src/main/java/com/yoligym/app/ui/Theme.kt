@@ -5,10 +5,13 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 
 val GymBackground = Color(0xFF0D0F14)
@@ -51,6 +54,8 @@ private val YoliLightColorScheme = lightColorScheme(
     onPrimaryContainer = Color(0xFF00210B),
     secondary = Color(0xFF006591),
     onSecondary = Color.White,
+    secondaryContainer = Color(0xFFD4EEF9),
+    onSecondaryContainer = Color(0xFF00354D),
     tertiary = Color(0xFF8B5F00),
     background = Color(0xFFF6F8FC),
     onBackground = Color(0xFF12161F),
@@ -64,38 +69,56 @@ private val GymTypography = Typography(
     headlineMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.ExtraBold,
-        fontSize = 24.sp,
-        lineHeight = 30.sp
+        fontSize = 21.sp,
+        lineHeight = 26.sp
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 26.sp
+        fontSize = 17.sp,
+        lineHeight = 22.sp
     ),
     titleMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 16.sp,
-        lineHeight = 22.sp
+        fontSize = 15.sp,
+        lineHeight = 20.sp
     ),
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 22.sp
-    ),
-    bodyMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
     ),
+    bodyMedium = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 13.sp,
+        lineHeight = 18.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
+    ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 18.sp
+        fontSize = 13.sp,
+        lineHeight = 17.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 15.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 14.sp
     )
 )
 
@@ -105,9 +128,16 @@ fun YoliGymTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) YoliDarkColorScheme else YoliLightColorScheme
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = GymTypography,
-        content = content
+    val currentDensity = LocalDensity.current
+    val clampedDensity = Density(
+        density = currentDensity.density,
+        fontScale = currentDensity.fontScale.coerceIn(0.85f, 1.15f)
     )
+    CompositionLocalProvider(LocalDensity provides clampedDensity) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = GymTypography,
+            content = content
+        )
+    }
 }

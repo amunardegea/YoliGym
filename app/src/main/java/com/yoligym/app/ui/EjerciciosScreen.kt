@@ -103,6 +103,7 @@ fun EjerciciosScreen(
                             Text(
                                 text = "${filteredExercises.size} de ${uiState.exercises.size} ejercicios disponibles",
                                 fontSize = 12.sp,
+                                lineHeight = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -113,7 +114,13 @@ fun EjerciciosScreen(
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("Buscar por nombre o técnica...") },
+                        placeholder = {
+                            Text(
+                                text = "Buscar ejercicio...",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -257,6 +264,7 @@ fun EjerciciosScreen(
                                 Text(
                                     text = exercise.notes,
                                     style = MaterialTheme.typography.bodyMedium,
+                                    lineHeight = 17.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis

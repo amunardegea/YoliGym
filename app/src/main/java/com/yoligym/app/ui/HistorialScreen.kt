@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +50,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -57,6 +61,7 @@ import com.yoligym.app.data.SessionDetail
 import com.yoligym.app.data.formatDurationSeconds
 import com.yoligym.app.data.formatWeight
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HistorialScreen(
     uiState: YoliGymUiState,
@@ -92,30 +97,34 @@ fun HistorialScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(14.dp)) {
                     Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         StatMetricBox(
                             value = "${stats.totalSessions}",
                             label = "Sesiones",
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
                         )
                         StatMetricBox(
                             value = "${stats.totalCompletedSets}",
-                            label = "Series Totales",
-                            color = MaterialTheme.colorScheme.secondary
+                            label = "Series",
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.weight(1f)
                         )
                         StatMetricBox(
                             value = "${formatWeight(stats.totalVolumeKg / 1000.0)} t",
-                            label = "Volumen Total",
-                            color = MaterialTheme.colorScheme.tertiary
+                            label = "Volumen",
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.weight(1f)
                         )
                         StatMetricBox(
                             value = "${(stats.totalDurationSeconds / 60)} min",
-                            label = "Tiempo Total",
-                            color = MaterialTheme.colorScheme.onSurface
+                            label = "Tiempo",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
                         )
                     }
                 }
@@ -177,9 +186,9 @@ fun HistorialScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Row(
+                                FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
@@ -269,7 +278,7 @@ fun HistorialScreen(
                             }
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = Alignment.Top,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 3.dp)
@@ -277,6 +286,7 @@ fun HistorialScreen(
                                 Text(
                                     text = "${completed.size}× ${exGroup.exercise.name}",
                                     fontSize = 13.sp,
+                                    lineHeight = 17.sp,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -285,6 +295,8 @@ fun HistorialScreen(
                                     text = bestSummary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
+                                    softWrap = false,
+                                    maxLines = 1,
                                     color = MaterialTheme.colorScheme.secondary
                                 )
                             }
@@ -380,18 +392,27 @@ fun HistorialScreen(
 private fun StatMetricBox(
     value: String,
     label: String,
-    color: androidx.compose.ui.graphics.Color
+    color: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
         Text(
             text = value,
             fontWeight = FontWeight.ExtraBold,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
+            maxLines = 1,
+            softWrap = false,
             color = color
         )
         Text(
             text = label,
             fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

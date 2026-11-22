@@ -19,6 +19,15 @@ class YoliGymDatabase(private val appContext: Context) :
         const val DATABASE_NAME = "yoligym.db"
         const val DATABASE_VERSION = 1
 
+        @Volatile
+        private var instance: YoliGymDatabase? = null
+
+        fun getInstance(context: Context): YoliGymDatabase {
+            return instance ?: synchronized(this) {
+                instance ?: YoliGymDatabase(context.applicationContext).also { instance = it }
+            }
+        }
+
         fun sanitizeVideoUrl(raw: String?): String? {
             if (raw.isNullOrBlank() || raw == "null") return null
             val trimmed = raw.trim()
